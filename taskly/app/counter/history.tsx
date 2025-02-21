@@ -21,55 +21,47 @@ export default function HistoryScreen() {
     }, []);
 
     return (
-        <FlatList
-            style={styles.list}
-            contentContainerStyle={styles.contentContainer}
-            data={countdownState?.completedAtTimestamps}
-            ListEmptyComponent={
-                <Text style={styles.emptyText}>No history</Text>
-            }
-
-            renderItem={({ item }) => {
-                const date = new Date(item);
-                const formattedDate = format(date, "MMM d, yyyy h:mm a");
-                return (
-                    <View style={styles.item}>
-                        <Text style={styles.text}>{formattedDate}</Text>
-                    </View>
-                );
-            }}
-            keyExtractor={item => item.toString()}
-
-        />
+        <View style={styles.container}>
+            <FlatList
+                data={countdownState?.completedAtTimestamps}
+                ListEmptyComponent={
+                    <Text style={styles.emptyText}>No history</Text>
+                }
+                renderItem={({ item }) => {
+                    const date = new Date(item);
+                    const formattedDate = format(date, "MMM d, yyyy h:mm a");
+                    return (
+                        <View style={styles.item}>
+                            <Text style={styles.text}>{formattedDate}</Text>
+                        </View>
+                    );
+                }}
+                keyExtractor={item => item.toString()}
+            />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    contentContainer: {
-        marginTop: 8,
-    },
-
-    list: {
+    container: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
         backgroundColor: theme.colorWhite,
     },
     text: {
-        fontSize: 24,
-
+        fontSize: 18,
+        color: theme.colorBlack,
     },
     item: {
         padding: 16,
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
-        borderRadius: 6,
         marginHorizontal: 16,
-        marginBottom: 8,
+        marginVertical: 8,
     },
     emptyText: {
-        fontSize: 24,
+        fontSize: 18,
         textAlign: "center",
-        marginTop: 16,
+        marginTop: 24,
+        color: theme.colorGray,
     }
 });

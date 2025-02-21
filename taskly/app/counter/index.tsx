@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { Text, View, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
-import { useState, useEffect } from "react";
+import { Text, View, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Dimensions } from "react-native";
+import { useState, useEffect, useRef } from "react";
 import { theme } from "../../theme";
 import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationsAsync";
 import * as Device from "expo-device";
@@ -9,9 +9,10 @@ import { intervalToDuration, Duration, isBefore } from "date-fns";
 import { TimeSegment } from "../../components/TimeSegment";
 import { getFromStorage, saveToStorage } from "../../utils/storage";
 import * as Haptics from "expo-haptics";
+import ConfettiCannon from "react-native-confetti-cannon";
 
 
-const frequency = 10 * 1000;
+const frequency = 2 * 7 * 24 * 60 * 60 * 1000;
 
 export const countdownStorageKey = "taskly-countdown";
 
@@ -36,6 +37,7 @@ Notifications.setNotificationHandler({
 });
 
 export default function CounterScreen() {
+    const confettiRef = useRef<ConfettiCannon>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [countdownState, setCountdownState] = useState<PersistedCountdownState | null>(null);
     const [status, setStatus] = useState<CountdownStatus>({
@@ -76,6 +78,7 @@ export default function CounterScreen() {
 
     const scheduleNotification = async () => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        confettiRef.current?.start();
         const result = await registerForPushNotificationsAsync();
         setPermission(result);
         if (result === "granted") {
@@ -90,7 +93,7 @@ export default function CounterScreen() {
             });
             const newCountdownState = {
                 currentNotificationId: pushNotificationId,
-                completedAtTimestamps: [...(countdownState?.completedAtTimestamps ?? []), Date.now()],
+                completedAtTimestamps: [Date.now(), ...(countdownState?.completedAtTimestamps ?? [])],
             }
             await saveToStorage(countdownStorageKey, newCountdownState);
             setCountdownState(newCountdownState);
@@ -147,6 +150,7 @@ export default function CounterScreen() {
             >
                 <Text style={[styles.buttonText, status.isOverdue ? styles.whiteText : undefined]}>Ive Done the Thing</Text>
             </TouchableOpacity>
+            <ConfettiCannon count={200} origin={{ x: Dimensions.get("window").width / 2, y: 0 }} ref={confettiRef} fadeOut />
 
         </View>
     );
